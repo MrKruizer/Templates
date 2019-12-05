@@ -1,0 +1,135 @@
+'use strict'
+function func4(){
+	for (i=0;i<8;i++){
+	tr=$('<tr></tr>')
+		for (j=0;j<8;j++){
+			td=$('<td></td>')
+			tr.append(td);
+			if ((i+j)%2){ td.css('background','whitesmoke'); td.addClass('white')}
+			else {td.css('background','rgb(20,20,20)'); td.addClass('black')}
+		}
+		$('#tbo').append(tr)	
+	}	
+}
+function func5(){
+	$('td').filter('.black').slice(0,12).append('<img src="img/Шашка.gif" class="cb">');	
+	$('td').filter('.black').slice(20,32).append('<img src="img/Шашка2.gif" class="cw">');	
+	$('td').click(chest);
+}
+$('#but').one('click',func4);
+$('#but2').one('click',func5);
+let turn=true, X1, Yy, chess, X2, Y2,trr, eats={ x:[],y:[]},eat=false, unity;
+function chest(){
+	ald=this;
+	function choice(){
+		unity='choice';
+		if ($('.black').is(ald)){
+			if ($(ald.children).is($('img.cb')) && turn==true){
+				chess=ald.children[0];
+				trr=ald.parentNode;
+				for (j=0;j<trr.children.length;j++){
+					if (trr.children[j]==ald) {X1=j; break;}
+				}
+				for (i=0;i<tbo.children.length;i++){
+					if (tbo.children[i]==trr) {Yy=i; break;}
+				}
+				$(tbo.children[Yy+1].children[X1-1]).css('box-shadow','inset 0 0 5px 1px rgba(255,255,255,0.9)');
+				$(tbo.children[Yy+1].children[X1+1]).css('box-shadow','inset 0 0 5px 1px rgba(255,255,255,0.9)');
+			}
+			else if ($(ald.children).is($('img.cw')) && turn==false){
+				chess=ald.children[0];
+				trr=ald.parentNode;
+				for (j=0;j<trr.children.length;j++){
+					if (trr.children[j]==ald) {X1=j; break;}
+				}
+				for (i=0;i<tbo.children.length;i++){
+					if (tbo.children[i]==trr) {Yy=i; break;}
+				}
+				$(tbo.children[Yy-1].children[X1-1]).css('box-shadow','inset 0 0 5px 1px rgba(255,255,255,0.9)');
+				$(tbo.children[Yy-1].children[X1+1]).css('box-shadow','inset 0 0 5px 1px rgba(255,255,255,0.9)');
+			}
+			$(chess).css('box-shadow','0 0 5px 0 rgba(0,255,0,0.9)');
+			eat=chanceEat();
+			}
+		}
+	function step(){
+		unity='step';
+		trr=ald.parentNode;
+		for (j=0;j<trr.children.length;j++){
+			if (trr.children[j]==ald) {X2=j; break;}
+		}
+		for (i=0;i<tbo.children.length;i++){
+			if (tbo.children[i]==trr) {Y2=i; break;}
+		}
+		if (X2==X1 && Y2==Yy){
+			$(chess).css('box-shadow','none')
+			chess=undefined;
+			cleanEats();
+			$(tbo.children[Yy+1].children[X1-1]).css('box-shadow','none');
+			$(tbo.children[Yy+1].children[X1+1]).css('box-shadow','none');
+			$(tbo.children[Yy-1].children[X1-1]).css('box-shadow','none');
+			$(tbo.children[Yy-1].children[X1+1]).css('box-shadow','none');
+			return;
+		}
+		else if (eat){
+			if (eats.x.includes(X2) && eats.y.includes(Y2)){
+				if ($(tbo.children[Y2+(Y2-Yy)].children[X2+(X2-X1)]).is(':empty'))
+					$(tbo.children[Y2].children[X2].children[0]).css('box-shadow','0 0 5px rgba(255,0,0,0.9)');
+					$(tbo.children[Y2].children[X2].children[0]).remove();
+					$(tbo.children[Y2+(Y2-Yy)].children[X2+(X2-X1)]).append(chess);
+					cleanEats();
+					eat=chanceEat()
+					if (!eat) {
+						turn=!turn;
+						$(chess).css('box-shadow','none')
+						chess=undefined;};
+			};
+		}
+		else if(ald.class!='white' && $(ald).is(':empty')){
+			if (chess.className=='cb'){
+				if( (X1-1)<=X2 && X2<=(X1+1) && (Yy)<=Y2 && Y2<=(Yy+1)){
+					$(tbo.children[i].children[j]).append(chess);
+					turn=false
+					$(chess).css('box-shadow','none')
+					chess=undefined;
+				};
+			}
+			else if((X1-1)<=X2 && X2<=(X1+1) && (Yy-1)<=Y2 && Y2<=(Yy)){
+				$(tbo.children[i].children[j]).append(chess);
+				turn=true;
+				$(chess).css('box-shadow','none')
+				chess=undefined;
+				}
+
+		}
+		$(tbo.children[Yy+1].children[X1-1]).css('box-shadow','none');
+		$(tbo.children[Yy+1].children[X1+1]).css('box-shadow','none');
+		$(tbo.children[Yy-1].children[X1-1]).css('box-shadow','none');
+		$(tbo.children[Yy-1].children[X1+1]).css('box-shadow','none');
+		cleanEats();
+	}
+	function chanceEat(){
+		unity='chanceEat';
+		for (i=Yy-1;i<Yy+2;i++){
+			for (j=X1-1;j<X1+2;j++){
+				if(!$(tbo.children[i].children[j]).is(':empty') && tbo.children[i].children[j]!=ald && tbo.children[i].children[j].children[0].className!=chess.className && $(tbo.children[Y2+(Y2-Yy)].children[X2+(X2-X1)]).is(':empty')){
+					eats.x.push(j);
+					eats.y.push(i);
+					$(tbo.children[i].children[j].children[0]).css('box-shadow','0 0 5px rgba(255,0,0,0.9)');
+				}
+			}
+		}
+		if (eats.x.length!=0) return true
+		else return false;
+	}
+	function cleanEats(){
+		unity='cleanEats';
+		for (a=0;a<eats.x.length;a++){
+			$(tbo.children[eats.y[a]].children[eats.x[a]].children[0]).css('box-shadow','none');
+		}
+		eats.x=[];
+		eats.y=[];
+	}
+	if (chess!=undefined){step()}
+	else choice();
+	}
